@@ -1,5 +1,5 @@
 import {WebSocket} from "ws";
-import {Chess} from "chess.js";
+import {Chess, Square} from "chess.js";
 import { GAME_OVER, INIT_GAME, MOVE } from "./messages";
 
 export class Game {
@@ -36,6 +36,21 @@ export class Game {
         }));
     }
 
+    getValidMoves(startingSquare: Square) {
+        const validMoves = this.board.moves({square: startingSquare});
+        if (this.moveCount % 2 === 1) {
+            this.player2.send(JSON.stringify({
+                type: "validMoves",
+                payload: validMoves
+            }));
+        } else {
+            this.player1.send(JSON.stringify({
+                type: "validMoves",
+                payload: validMoves
+            }));            
+        }
+    }
+
     makeMove(socket: WebSocket, move: {
         from: string;
         to: string;
@@ -43,17 +58,20 @@ export class Game {
         // Validate type of move
         console.log("making move")
         if (this.moveCount % 2 === 0 && socket !== this.player1) {
+            console.log('wrong player')
             return;
         }
         
         if (this.moveCount % 2 === 1 && socket !== this.player2) {
+            console.log('wrong player')
             return;
         }
-        console.log("not early return");
 
         try {
             this.board.move(move);
             this.moveCount++;
+            console.log('move made')
+            console.log(this.board.turn())
         } catch (e) {
             return;
         }
@@ -76,16 +94,17 @@ export class Game {
             return;
         }
         
-        if (this.moveCount % 2 === 1) {
-            this.player2.send(JSON.stringify({
-                type: MOVE,
-                payload: move
-            }));
-        } else {
-            this.player1.send(JSON.stringify({
-                type: MOVE,
-                payload: move
-            }));            
-        }
+        // console.log("move count", this.moveCount)
+        // if (this.moveCount % 2 === 1) {
+            // console.log("sending move to player 2", move)
+        this.player2.send(JSON.stringify({
+            type: MOVE,
+            payload: move
+        }));
+        // } else {
+        this.player1.send(JSON.stringify({
+            type: MOVE,
+            payload: move
+        }));            
     }
 }

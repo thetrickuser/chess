@@ -24,9 +24,9 @@ export class GameManager {
     }
 
     private addHandler(socket: WebSocket) {
-        console.log("calling addHandler")
         socket.on('message', (data) => {
             const message = JSON.parse(data.toString());
+            
             if (message.type === INIT_GAME) {
                 if (this.pendingUser) {
                     // start a game
@@ -40,11 +40,21 @@ export class GameManager {
             }
 
             if (message.type === MOVE) {
+                console.log("received move", message)
                 const game = this.games.find(game =>
                     game.player1 === socket || game.player2 === socket);
 
                 if (game) {
-                    game.makeMove(socket, message.move)
+                    game.makeMove(socket, message.payload)
+                }
+            }
+
+            if (message.type === "moving") {
+                const game = this.games.find(game =>
+                    game.player1 === socket || game.player2 === socket);
+
+                if (game) {
+                    game.getValidMoves(message.from);
                 }
             }
         })
