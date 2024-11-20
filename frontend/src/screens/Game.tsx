@@ -18,7 +18,6 @@ export const Game = () => {
 
     useEffect(() => {
         if (!socket) {
-            setChess(chess)
             return;
         }
 
@@ -32,8 +31,12 @@ export const Game = () => {
                     break;
                 case MOVE:
                     const move = message.payload;
+                    console.log('chess before move')
+                    console.log(chess)
                     chess.move(move);
-                    setChess(chess);
+                    setChess(new Chess(chess.fen()));
+                    console.log('chess after move')
+                    console.log(chess);
                     break;
                 case "validMoves":
                     setValidMoves(message.payload);               
@@ -53,10 +56,10 @@ export const Game = () => {
     return (
         <div className="">
             <div className="h-screen pt-8 grid grid-cols-6">
-                <div className="col-span-4 flex justify-center">
+                <div className="col-span-5 flex justify-center">
                     <ChessBoard socket={socket} chess={chess} validMoves={validMoves} playerColor={playerColor}/>
                 </div>
-                <div className="col-span-2 bg-slate-800 h-4/5 w-2/3 flex justify-center pt-8">
+                <div className="col-span-1 bg-slate-800 h-4/5 w-2/3 flex justify-center pt-8">
                 <Button onClick={() => socket.send(JSON.stringify({type: INIT_GAME}))}>
                   Play
                 </Button>
