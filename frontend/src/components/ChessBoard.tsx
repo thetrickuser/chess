@@ -3,14 +3,14 @@ import { useState } from "react";
 import { MOVE } from "../screens/Game";
 
 function generateChessBoard() {
-  const boardArray = [];
+  const boardArray: Square[][] = [];
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
 
   for (let rank of ranks) {
-    let rankArray = [];
+    let rankArray: Square[] = [];
     for (let file of files) {
-      rankArray.push(file + rank);
+      rankArray.push((file + rank) as Square);
     }
     boardArray.push(rankArray);
   }
