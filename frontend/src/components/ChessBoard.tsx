@@ -25,11 +25,13 @@ export const ChessBoard = ({
   socket,
   validMoves,
   playerColor,
+  gameId
 }: {
   chess: Chess;
   socket: WebSocket;
   validMoves: string[];
   playerColor: string;
+  gameId: number
 }) => {
   const currentBoard =
     playerColor === "white"
@@ -45,15 +47,15 @@ export const ChessBoard = ({
       if (currentSquare) {
         if (currentSquare.color === chess.turn()) {
           setFrom(square);
-          getValidMoves(socket, square);
+          getValidMoves(socket, square, gameId);
         } else {
           if (valid) {
-            sendCaptureMove(socket, from, square);
+            sendCaptureMove(socket, from, square, gameId);
           }
         }
       } else {
         if (valid) {
-          makeMove(socket, from, square);
+          makeMove(socket, from, square, gameId);
         } else {
           setFrom("");
         }
@@ -94,11 +96,12 @@ export const ChessBoard = ({
   );
 };
 
-function makeMove(socket: WebSocket, from: string, square: string) {
+function makeMove(socket: WebSocket, from: string, square: string, gameId: number) {
   socket.send(
     JSON.stringify({
       type: MOVE,
       payload: {
+        gameId,
         from,
         to: square,
       },
@@ -106,23 +109,25 @@ function makeMove(socket: WebSocket, from: string, square: string) {
   );
 }
 
-function sendCaptureMove(socket: WebSocket, from: string, square: string) {
+function sendCaptureMove(socket: WebSocket, from: string, square: string, gameId: number) {
   socket.send(
     JSON.stringify({
       type: MOVE,
       payload: {
         from,
         to: square,
+        gameId
       },
     })
   );
 }
 
-function getValidMoves(socket: WebSocket, square: string) {
+function getValidMoves(socket: WebSocket, square: string, gameId: number) {
   socket.send(
     JSON.stringify({
       type: "moving",
       from: square,
+      gameId
     })
   );
 }

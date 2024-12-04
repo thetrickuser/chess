@@ -12,9 +12,11 @@
   "description": "",
   "dependencies": {
     "chess.js": "^1.0.0-beta.8",
+    "pg": "^8.13.1",
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.11.10",
     "@types/ws": "^8.5.13"
   }
 }

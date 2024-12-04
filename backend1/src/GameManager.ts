@@ -1,6 +1,7 @@
 import {WebSocket} from "ws";
 import {INIT_GAME, MOVE} from "./messages";
 import {Game} from "./Game";
+import { saveGameState } from "./database";
 
 export class GameManager {
     private games: Game[];
@@ -30,9 +31,11 @@ export class GameManager {
             if (message.type === INIT_GAME) {
                 if (this.pendingUser) {
                     // start a game
-                    const game = new Game(this.pendingUser, socket);
+                    const gameId = Math.round(Math.random() * 1000000);
+                    const game = new Game(this.pendingUser, socket, gameId);
                     this.games.push(game);
                     this.pendingUser = null;
+                    saveGameState({gameId, state: '', moveNumber: 0, isGameOver: 'false'})
                 } else {
                     // set this user as pending user
                     this.pendingUser = socket;
@@ -42,7 +45,7 @@ export class GameManager {
             if (message.type === MOVE) {
                 console.log("received move", message)
                 const game = this.games.find(game =>
-                    game.player1 === socket || game.player2 === socket);
+                    game.gameId === message.payload.gameId);
 
                 if (game) {
                     game.makeMove(socket, message.payload)
@@ -51,7 +54,7 @@ export class GameManager {
 
             if (message.type === "moving") {
                 const game = this.games.find(game =>
-                    game.player1 === socket || game.player2 === socket);
+                    game.gameId === message.gameId);
 
                 if (game) {
                     game.getValidMoves(message.from);
