@@ -5,4 +5,5 @@ backend1/package-lock.json
 backend1/.vscode
 frontend/.vscode
 backend1/dist
+backend1/.env
 
