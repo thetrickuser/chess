@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 
-const WS_URL = "wss://chess-backend-ui79.onrender.com";
+const WS_URL = import.meta.env.VITE_WS_URL;
+console.log(import.meta.env)
+console.log(WS_URL)
 export const useSocket = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
 

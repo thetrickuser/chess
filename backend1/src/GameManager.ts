@@ -5,13 +5,15 @@ import { saveGameState } from "./database";
 
 export class GameManager {
     private games: Game[];
-    private pendingUser: WebSocket | null;
+    private randomUser: WebSocket | null;
+    private customGames: {customUser: WebSocket, gameId: number}[];
     private users: WebSocket[];
 
     constructor() {
         this.games = [];
-        this.pendingUser = null;
+        this.randomUser = null;
         this.users = [];
+        this.customGames = [];
     }
 
     addUser(socket: WebSocket) {
@@ -29,16 +31,31 @@ export class GameManager {
             const message = JSON.parse(data.toString());
             
             if (message.type === INIT_GAME) {
-                if (this.pendingUser) {
+                if (this.randomUser) {
                     // start a game
                     const gameId = Math.round(Math.random() * 1000000);
-                    const game = new Game(this.pendingUser, socket, gameId);
+                    const game = new Game(this.randomUser, socket, gameId);
                     this.games.push(game);
-                    this.pendingUser = null;
+                    this.randomUser = null;
                     saveGameState({gameId, state: '', moveNumber: 0, isGameOver: 'false'})
                 } else {
                     // set this user as pending user
-                    this.pendingUser = socket;
+                    this.randomUser = socket;
+                }
+            }
+
+            if (message.type === "create_game") {
+                const gameId = Math.round(Math.random() * 1000000);
+                this.customGames.push({customUser: socket, gameId});
+            }
+
+            if (message.type === "join_game") {
+                const gameId = message.payload.gameId;
+                const customGame = this.customGames.find(game => game.gameId === gameId);
+                if (customGame) {
+                    const game = new Game(customGame.customUser, socket, gameId);
+                    this.games.push(game);
+                    saveGameState({gameId, state: '', moveNumber: 0, isGameOver: 'false'})
                 }
             }
 

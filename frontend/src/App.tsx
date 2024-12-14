@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { Landing } from './screens/Landing';
 import { Game } from './screens/Game';
+import { CreateGame } from './screens/CreateGame';
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path='/game' element={<Game />} />
+        <Route path='/createGame' element={<CreateGame />} />
       </Routes>
       </BrowserRouter>
     </div>

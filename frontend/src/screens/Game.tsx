@@ -4,6 +4,7 @@ import { ChessBoard } from "../components/ChessBoard";
 import { useSocket } from "../hooks/useSocket";
 import { Chess } from "chess.js";
 import Timer from "../components/Timer";
+import { useNavigate } from "react-router-dom";
 
 export const INIT_GAME = "init_game";
 export const MOVE = "move";
@@ -11,6 +12,7 @@ export const GAME_OVER = "game over";
 
 export const Game = () => {
   const socket = useSocket();
+  const navigate = useNavigate();
   console.log(socket)
   const [chess, setChess] = useState(new Chess());
   const [gameOn, setGameOn] = useState(false);
@@ -76,11 +78,23 @@ export const Game = () => {
             <Button onClick={() => console.log('resign')}>Draw</Button>
             </>
           ) : (
+            <>
             <Button
               onClick={() => socket.send(JSON.stringify({ type: INIT_GAME}))}
             >
-              Play
+              Start 10 min
             </Button>
+            <Button
+              onClick={() => socket.send(JSON.stringify({ type: INIT_GAME}))}
+            >
+              Join Game
+            </Button>
+            <Button
+              onClick={() => navigate("/createGame")}
+            >
+              Create Game
+            </Button>
+            </>
           )}
         </div>
       </div>
